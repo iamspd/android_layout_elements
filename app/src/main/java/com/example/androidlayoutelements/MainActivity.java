@@ -10,6 +10,7 @@ import androidx.core.app.NotificationManagerCompat;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
@@ -36,7 +37,12 @@ public class MainActivity extends AppCompatActivity {
         String message = mEditMessage.getText().toString();
 
         Intent i = new Intent(this, MainActivity.class);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, i, 0);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, i, PendingIntent.FLAG_IMMUTABLE);
+
+        Intent broadcastIntent = new Intent(this, NotificationReceiver.class);
+        broadcastIntent.putExtra("message", message);
+        PendingIntent pendingBroadcast = PendingIntent.getBroadcast(this,
+                0, broadcastIntent, PendingIntent.FLAG_IMMUTABLE);
 
         Notification notification = new NotificationCompat.Builder(this, CHANNEL_1_ID)
                 .setSmallIcon(R.mipmap.ic_launcher)
@@ -45,6 +51,10 @@ public class MainActivity extends AppCompatActivity {
                 .setPriority(NotificationManagerCompat.IMPORTANCE_HIGH)
                 .setCategory(NotificationCompat.CATEGORY_MESSAGE)
                 .setContentIntent(pendingIntent)
+                .setAutoCancel(true)
+                .setColor(Color.BLUE)
+                .setOnlyAlertOnce(true)
+                .addAction(R.mipmap.ic_launcher, "Toast", pendingBroadcast)
                 .build();
 
         notificationManager.notify(1, notification);
